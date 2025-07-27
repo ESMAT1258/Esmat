@@ -1,0 +1,467 @@
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>برنامج تسجيل الأفراد</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable,
+      #printable * {
+        visibility: visible;
+      }
+      #printable {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      #printable table {
+        page-break-inside: avoid;
+      }
+      #printable h3 {
+        page-break-before: always;
+      }
+      #printable h3:first-child {
+        page-break-before: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
+  <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
+    برنامج تسجيل الأفراد العسكريين
+  </h1>
+  <form id="entryForm" class="bg-white p-6 rounded-lg shadow-md w-full max-w-lg" autocomplete="off">
+    <div class="mb-4">
+      <label for="name" class="block mb-1 font-semibold text-gray-700">اسم الفرد</label>
+      <input type="text" id="name" name="name" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="أدخل اسم الفرد" />
+    </div>
+    <div class="mb-4">
+      <label for="militaryNumber" class="block mb-1 font-semibold text-gray-700">رقم العسكري</label>
+      <input type="text" id="militaryNumber" name="militaryNumber" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="أدخل الرقم العسكري" />
+    </div>
+    <div class="mb-4">
+      <label for="battalion" class="block mb-1 font-semibold text-gray-700">اسم الكتيبة</label>
+      <select id="battalion" name="battalion" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="" disabled selected>اختر الكتيبة</option>
+        <option value="1">الكتيبة 1</option>
+        <option value="2">الكتيبة 2</option>
+        <option value="3">الكتيبة 3</option>
+        <option value="4">الكتيبة 4</option>
+        <option value="5">الكتيبة 5</option>
+      </select>
+    </div>
+    <div class="mb-6">
+      <label for="company" class="block mb-1 font-semibold text-gray-700">اسم السرية</label>
+      <select id="company" name="company" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="" disabled selected>اختر السرية</option>
+        <option value="1">السرية 1</option>
+        <option value="2">السرية 2</option>
+        <option value="3">السرية 3</option>
+        <option value="4">السرية 4</option>
+        <option value="5">السرية 5</option>
+      </select>
+    </div>
+    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded font-semibold hover:bg-blue-700 transition">حفظ البيانات</button>
+  </form>
+
+  <section class="w-full max-w-4xl mt-10">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800 text-center">كشوف السرية</h2>
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0 sm:space-x-4 rtl:space-x-reverse">
+      <div class="flex flex-wrap gap-2 justify-center">
+        <button type="button" data-company="1" class="toggle-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">إظهار/إخفاء السرية 1</button>
+        <button type="button" data-company="2" class="toggle-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">إظهار/إخفاء السرية 2</button>
+        <button type="button" data-company="3" class="toggle-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">إظهار/إخفاء السرية 3</button>
+        <button type="button" data-company="4" class="toggle-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">إظهار/إخفاء السرية 4</button>
+        <button type="button" data-company="5" class="toggle-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">إظهار/إخفاء السرية 5</button>
+      </div>
+      <div class="flex flex-wrap gap-2 justify-center">
+        <button type="button" id="printAllBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition flex items-center gap-2"><i class="fas fa-print"></i> طباعة الكل</button>
+        <button type="button" id="printCompanyBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition flex items-center gap-2" disabled><i class="fas fa-print"></i> طباعة السرية</button>
+        <button type="button" id="generateReportBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition flex items-center gap-2"><i class="fas fa-file-alt"></i> تقرير شامل</button>
+      </div>
+    </div>
+
+    <div class="mb-6 max-w-lg mx-auto">
+      <input type="text" id="searchInput" placeholder="ابحث باسم الفرد أو الرقم العسكري..." class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    </div>
+
+    <div id="companiesContainer" class="space-y-8">
+      <div id="company-1" class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-xl font-semibold mb-3 text-blue-700">كشف السرية 1</h3>
+        <table class="w-full text-right table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-blue-100">
+              <th class="border border-gray-300 px-3 py-2">اسم الفرد</th>
+              <th class="border border-gray-300 px-3 py-2">الرقم العسكري</th>
+              <th class="border border-gray-300 px-3 py-2">الكتيبة</th>
+              <th class="border border-gray-300 px-3 py-2">السرية</th>
+              <th class="border border-gray-300 px-3 py-2">حذف</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="company-2" class="bg-white rounded-lg shadow p-4 hidden">
+        <h3 class="text-xl font-semibold mb-3 text-blue-700">كشف السرية 2</h3>
+        <table class="w-full text-right table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-blue-100">
+              <th class="border border-gray-300 px-3 py-2">اسم الفرد</th>
+              <th class="border border-gray-300 px-3 py-2">الرقم العسكري</th>
+              <th class="border border-gray-300 px-3 py-2">الكتيبة</th>
+              <th class="border border-gray-300 px-3 py-2">السرية</th>
+              <th class="border border-gray-300 px-3 py-2">حذف</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="company-3" class="bg-white rounded-lg shadow p-4 hidden">
+        <h3 class="text-xl font-semibold mb-3 text-blue-700">كشف السرية 3</h3>
+        <table class="w-full text-right table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-blue-100">
+              <th class="border border-gray-300 px-3 py-2">اسم الفرد</th>
+              <th class="border border-gray-300 px-3 py-2">الرقم العسكري</th>
+              <th class="border border-gray-300 px-3 py-2">الكتيبة</th>
+              <th class="border border-gray-300 px-3 py-2">السرية</th>
+              <th class="border border-gray-300 px-3 py-2">حذف</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="company-4" class="bg-white rounded-lg shadow p-4 hidden">
+        <h3 class="text-xl font-semibold mb-3 text-blue-700">كشف السرية 4</h3>
+        <table class="w-full text-right table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-blue-100">
+              <th class="border border-gray-300 px-3 py-2">اسم الفرد</th>
+              <th class="border border-gray-300 px-3 py-2">الرقم العسكري</th>
+              <th class="border border-gray-300 px-3 py-2">الكتيبة</th>
+              <th class="border border-gray-300 px-3 py-2">السرية</th>
+              <th class="border border-gray-300 px-3 py-2">حذف</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="company-5" class="bg-white rounded-lg shadow p-4 hidden">
+        <h3 class="text-xl font-semibold mb-3 text-blue-700">كشف السرية 5</h3>
+        <table class="w-full text-right table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-blue-100">
+              <th class="border border-gray-300 px-3 py-2">اسم الفرد</th>
+              <th class="border border-gray-300 px-3 py-2">الرقم العسكري</th>
+              <th class="border border-gray-300 px-3 py-2">الكتيبة</th>
+              <th class="border border-gray-300 px-3 py-2">السرية</th>
+              <th class="border border-gray-300 px-3 py-2">حذف</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div id="printable" class="hidden"></div>
+
+  <script>
+    const form = document.getElementById('entryForm');
+    const companiesContainer = document.getElementById('companiesContainer');
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+    const printAllBtn = document.getElementById('printAllBtn');
+    const printCompanyBtn = document.getElementById('printCompanyBtn');
+    const generateReportBtn = document.getElementById('generateReportBtn');
+    const searchInput = document.getElementById('searchInput');
+    const printableDiv = document.getElementById('printable');
+
+    // Load data from localStorage or initialize empty object
+    let data = JSON.parse(localStorage.getItem('militaryData')) || {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": []
+    };
+
+    // Track which companies are visible
+    let visibleCompanies = new Set([1]); // Initially company 1 visible by default
+
+    // Render all companies tables from data
+    function renderTables(filter = '') {
+      const filterLower = filter.trim().toLowerCase();
+      for (let companyId = 1; companyId <= 5; companyId++) {
+        const companyDiv = document.getElementById(`company-${companyId}`);
+        const tbody = companyDiv.querySelector('tbody');
+        tbody.innerHTML = '';
+        let hasVisibleRows = false;
+        data[companyId].forEach((entry, index) => {
+          const nameLower = entry.name.toLowerCase();
+          const numberLower = entry.militaryNumber.toLowerCase();
+          if (filterLower === '' || nameLower.includes(filterLower) || numberLower.includes(filterLower)) {
+            hasVisibleRows = true;
+            const tr = document.createElement('tr');
+            tr.classList.add('border-b', 'border-gray-200');
+            tr.innerHTML = `
+              <td class="border border-gray-300 px-3 py-2">${entry.name}</td>
+              <td class="border border-gray-300 px-3 py-2">${entry.militaryNumber}</td>
+              <td class="border border-gray-300 px-3 py-2">الكتيبة ${entry.battalion}</td>
+              <td class="border border-gray-300 px-3 py-2">السرية ${companyId}</td>
+              <td class="border border-gray-300 px-3 py-2 text-center">
+                <button data-company="${companyId}" data-index="${index}" class="delete-btn text-red-600 hover:text-red-800" aria-label="حذف الفرد">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          }
+        });
+        // Show or hide company div based on visibility and if it has rows or filter is active
+        if (visibleCompanies.has(companyId) || filterLower !== '') {
+          companyDiv.classList.remove('hidden');
+        } else {
+          companyDiv.classList.add('hidden');
+        }
+        // If filter active and no rows, show a message
+        if (filterLower !== '' && !hasVisibleRows) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-gray-500">لا توجد نتائج مطابقة للبحث</td></tr>`;
+          companyDiv.classList.remove('hidden');
+        }
+      }
+      attachDeleteListeners();
+      updatePrintCompanyBtn();
+    }
+
+    // Attach delete button event listeners
+    function attachDeleteListeners() {
+      const deleteButtons = document.querySelectorAll('.delete-btn');
+      deleteButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const companyId = btn.getAttribute('data-company');
+          const index = parseInt(btn.getAttribute('data-index'));
+          if (confirm('هل أنت متأكد من حذف هذا الفرد؟')) {
+            data[companyId].splice(index, 1);
+            saveData();
+            renderTables(searchInput.value);
+          }
+        });
+      });
+    }
+
+    // Save data to localStorage
+    function saveData() {
+      localStorage.setItem('militaryData', JSON.stringify(data));
+    }
+
+    // Check if military number already exists in any company
+    function isDuplicateMilitaryNumber(militaryNumber) {
+      for (let companyId in data) {
+        if (data[companyId].some(entry => entry.militaryNumber === militaryNumber)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Toggle company visibility
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const companyId = parseInt(button.getAttribute('data-company'));
+        const companyDiv = document.getElementById(`company-${companyId}`);
+        if (companyDiv.classList.contains('hidden')) {
+          companyDiv.classList.remove('hidden');
+          visibleCompanies.add(companyId);
+        } else {
+          companyDiv.classList.add('hidden');
+          visibleCompanies.delete(companyId);
+        }
+        updatePrintCompanyBtn();
+      });
+    });
+
+    // Update printCompanyBtn enabled state based on visible companies count
+    function updatePrintCompanyBtn() {
+      if (visibleCompanies.size === 1) {
+        printCompanyBtn.disabled = false;
+        printCompanyBtn.textContent = `طباعة السرية ${[...visibleCompanies][0]}`;
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-print';
+        printCompanyBtn.prepend(icon);
+      } else {
+        printCompanyBtn.disabled = true;
+        printCompanyBtn.textContent = 'طباعة السرية';
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-print';
+        printCompanyBtn.prepend(icon);
+      }
+    }
+
+    // Print all visible companies
+    printAllBtn.addEventListener('click', () => {
+      printableDiv.innerHTML = '';
+      for (let companyId = 1; companyId <= 5; companyId++) {
+        if (visibleCompanies.has(companyId)) {
+          printableDiv.appendChild(createPrintableTable(companyId, data[companyId]));
+        }
+      }
+      if (printableDiv.innerHTML.trim() === '') {
+        alert('لا توجد بيانات للطباعة. يرجى إظهار السرية أولاً.');
+        return;
+      }
+      window.print();
+    });
+
+    // Print single visible company (only if exactly one visible)
+    printCompanyBtn.addEventListener('click', () => {
+      if (visibleCompanies.size !== 1) return;
+      const companyId = [...visibleCompanies][0];
+      printableDiv.innerHTML = '';
+      printableDiv.appendChild(createPrintableTable(companyId, data[companyId]));
+      window.print();
+    });
+
+    // Create printable table element for a company
+    function createPrintableTable(companyId, entries) {
+      const container = document.createElement('div');
+      container.classList.add('mb-8');
+      const heading = document.createElement('h3');
+      heading.textContent = `كشف السرية ${companyId}`;
+      heading.classList.add('text-xl', 'font-semibold', 'mb-3', 'text-blue-700');
+      container.appendChild(heading);
+
+      const table = document.createElement('table');
+      table.classList.add('w-full', 'text-right', 'table-auto', 'border-collapse', 'border', 'border-gray-300');
+      const thead = document.createElement('thead');
+      thead.innerHTML = `
+        <tr class="bg-blue-100">
+          <th class="border border-gray-300 px-3 py-2">اسم الفرد</th>
+          <th class="border border-gray-300 px-3 py-2">الرقم العسكري</th>
+          <th class="border border-gray-300 px-3 py-2">الكتيبة</th>
+          <th class="border border-gray-300 px-3 py-2">السرية</th>
+        </tr>
+      `;
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      if (entries.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="4" class="text-center py-4 text-gray-500">لا توجد بيانات</td>`;
+        tbody.appendChild(tr);
+      } else {
+        entries.forEach(entry => {
+          const tr = document.createElement('tr');
+          tr.classList.add('border-b', 'border-gray-200');
+          tr.innerHTML = `
+            <td class="border border-gray-300 px-3 py-2">${entry.name}</td>
+            <td class="border border-gray-300 px-3 py-2">${entry.militaryNumber}</td>
+            <td class="border border-gray-300 px-3 py-2">الكتيبة ${entry.battalion}</td>
+            <td class="border border-gray-300 px-3 py-2">السرية ${companyId}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+      table.appendChild(tbody);
+      container.appendChild(table);
+      return container;
+    }
+
+    // Generate comprehensive report (summary)
+    generateReportBtn.addEventListener('click', () => {
+      printableDiv.innerHTML = '';
+      const container = document.createElement('div');
+      const heading = document.createElement('h2');
+      heading.textContent = 'تقرير شامل لجميع السرايا';
+      heading.classList.add('text-2xl', 'font-bold', 'mb-6', 'text-gray-800', 'text-center');
+      container.appendChild(heading);
+
+      for (let companyId = 1; companyId <= 5; companyId++) {
+        const entries = data[companyId];
+        const subHeading = document.createElement('h3');
+        subHeading.textContent = `السرية ${companyId} - عدد الأفراد: ${entries.length}`;
+        subHeading.classList.add('text-xl', 'font-semibold', 'mb-3', 'text-blue-700');
+        container.appendChild(subHeading);
+
+        const table = document.createElement('table');
+        table.classList.add('w-full', 'text-right', 'table-auto', 'border-collapse', 'border', 'border-gray-300', 'mb-8');
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+          <tr class="bg-blue-100">
+            <th class="border border-gray-300 px-3 py-2">اسم الفرد</th>
+            <th class="border border-gray-300 px-3 py-2">الرقم العسكري</th>
+            <th class="border border-gray-300 px-3 py-2">الكتيبة</th>
+          </tr>
+        `;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        if (entries.length === 0) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td colspan="3" class="text-center py-4 text-gray-500">لا توجد بيانات</td>`;
+          tbody.appendChild(tr);
+        } else {
+          entries.forEach(entry => {
+            const tr = document.createElement('tr');
+            tr.classList.add('border-b', 'border-gray-200');
+            tr.innerHTML = `
+              <td class="border border-gray-300 px-3 py-2">${entry.name}</td>
+              <td class="border border-gray-300 px-3 py-2">${entry.militaryNumber}</td>
+              <td class="border border-gray-300 px-3 py-2">الكتيبة ${entry.battalion}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+        table.appendChild(tbody);
+        container.appendChild(table);
+      }
+      printableDiv.appendChild(container);
+      window.print();
+    });
+
+    // Form submission handler
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = form.name.value.trim();
+      const militaryNumber = form.militaryNumber.value.trim();
+      const battalion = form.battalion.value;
+      const company = form.company.value;
+
+      if (!name || !militaryNumber || !battalion || !company) {
+        alert('يرجى ملء جميع الحقول.');
+        return;
+      }
+
+      if (isDuplicateMilitaryNumber(militaryNumber)) {
+        alert('الرقم العسكري موجود بالفعل.');
+        return;
+      }
+
+      data[company].push({ name, militaryNumber, battalion, company });
+      saveData();
+      renderTables(searchInput.value);
+      form.reset();
+      form.battalion.value = '';
+      form.company.value = '';
+      alert('تم حفظ البيانات بنجاح.');
+    });
+
+    // Search input handler
+    searchInput.addEventListener('input', () => {
+      renderTables(searchInput.value);
+    });
+
+    // Initial render
+    renderTables();
+  </script>
+</body>
+</html>
